@@ -17,22 +17,73 @@ All messages, including simple static ones, are enclosed in `{…}` delimiters:
 An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime.
 
 The most common way to use MessageFormat is for simple variable replacement.
-Whitespace (including newlines) is ignored when not in literal mode.
 
-A simple expression is a bare variable name:
+One simple expression is a bare variable name:
+
+```
+{$userName}
+```
+
+Another kind of simple expression is called a "literal": a string that is not interpreted.
+
+```
+{Hello, world!}
+```
+
+In this expression, the string "Hello, world!" is a literal.
+
+TODO: Explain the difference between quoted and unquoted literals (possibly later in the document).
+
+In a literal, whitespace is significant. `{Hello, world!}` is different from `{Hello,world!}`.
+`{Hello,  world!}` is also different from `{Hello, world!}`.
+The same is true about text inside patterns (see [Patterns](#patterns)).
+Outside those two contexts, sequences of whitespace characters are
+always treated like a single whitespace.
+Except when specifically mentioned, whitespace is ignored.
+
+## Patterns
+
+A pattern represents a list of parts. We already saw a simple example of a pattern:
+
+```
+{This is a message.}
+```
+
+Another example is a pattern that contains an expression:
+
+```
+{{$userName}}
+```
+
+Note the two sets of curly braces. The outer set means "this is a pattern".
+The inner set means "this is an expression."
+
+TODO: explain how sometimes the same string can be a pattern
+or an expression depending on context: for example, `{This is a message.}`
+
+The two kinds of parts can be combined into one pattern:
 
 ```
 {Hello, {$userName}!}
 ```
 
+This pattern has three parts: a text part "Hello, ";
+an expression part `{$userName}`; and a text part "!".
+
+Similarly to literals, whitespace that appears in text in patterns is significant.
+For example, `{This is a message.}` is a different pattern from
+`{Thisisamessage.}`, which is also different from `{This  is  a  message.}`.
+
 ## Functions
 
-Functions are the building block of MessageFormat. A function is named functionality, possibly with options, that format, process, or operate on a variable.
+Functions are the building block of MessageFormat. A function is named functionality, possibly with options, that formats, processes, or operates on a variable.
 
 MessageFormat functions can be invoked in two contexts:
 
 * inside placeholders, to produce a part of the message's formatted output; for example, a raw value of `|1.5|` may be formatted to `1,5` in a language which uses commas as decimal separators,
 * inside selectors, to contribute to selecting the appropriate variant among all given variants.
+
+TODO: The term "placeholder" hasn't been defined yet
 
 Furthermore, functions can behave differently based on context despite having a single name and many functions can be used, for instance, for both formatting and selecting values.
 
@@ -42,9 +93,25 @@ For example, a message with an interpolated $date variable formatted with the :d
 {Today is {$date :datetime weekday=long}.}
 ```
 
+The argument to the function must be followed by whitespace.
+For example, the following is valid, but would be interpreted
+as referring to a variable called `date:datetime`,
+not to the result of calling the `datetime` function
+with `$date` as an argument.
+
+```
+{Today is {$date:datetime}.}
+```
+
+TODO: explain options
+
+The options have to be separated from each other by whitespace.
+
 ### Prefix sigils
 
 TODO: Include a decent non-markup example to demonstrate their utility. 
+TODO: Is that example necessary? While `+` and `-` don't _have_ to be
+used for markup, there's no compelling reason to.
 
 Functions use one of the following prefix sigils:
 
@@ -144,6 +211,9 @@ Placeholder section, other common builtins include: `noun`, `adjective`, `term`
 
 ### Custom Functions
 
+TODO: Should eventually explain how to _define_ custom functions, but maybe
+that has to be in a separate document that's JS-specific.
+
 MessageFormat allows you to specify extension points via custom functions in a portable manner through the "Function Registry".
 
 The registry provides a machine-readable description of MessageFormat extensions (custom functions). It contains descriptions of function signatures as defined in the [data model syntax](https://github.com/unicode-org/message-format-wg/blob/main/spec/registry.dtd) and [documentation](https://github.com/unicode-org/message-format-wg/blob/main/spec/registry.md).
@@ -205,6 +275,8 @@ A message defining two local variables: `$itemAcc` and `$countInt`, and using `$
     when one {You bought {$color :adjective article=indefinite accord=$itemAcc} {$itemAcc}.}
     when * {You bought {$countInt} {$color :adjective accord=$itemAcc} {$itemAcc}.}
 
+The keyword `let` and the variable name must be separated by whitespace.
+
 ## Selectors
 
 A selector selects a specific pattern from a list of available patterns in a message based on the value of its expression. A message can have multiple selectors.
@@ -240,6 +312,11 @@ A message with 2 _selectors_:
     when * masculine {{$userName} added {$photoCount} photos to his album.}
     when * feminine {{$userName} added {$photoCount} photos to her album.}
     when * * {{$userName} added {$photoCount} photos to their album.}
+
+TODO: explain "key"
+
+The keys after the `when` keyword have to be separated from each other with whitespace,
+and the `when` keyword itself must be followed by whitespace.
 
 <!-- 
 ## PluralFormat
