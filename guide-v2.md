@@ -6,8 +6,6 @@
 
 Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators move around the variable elements according to the grammar of the target language.
 
-<!-- TODO: Explain literals, maybe patterns?  -->
-
 Simple (static) messages can be written as-is, since the default mode is "text mode".
 
 **EXAMPLE**
@@ -26,7 +24,9 @@ For more complex messages, you need to switch into "code mode" by using a set of
 }}
 ```
 
-## Evaluating Expressions
+<!-- TODO: explain literals? -->
+
+## Expressions
 
 An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime. Expressions are enclosed within a single set of braces (`{...}`).
 
@@ -39,7 +39,13 @@ The most common way to use `MessageFormat` is for simple variable replacement.
 Hello, {$userName}!
 ```
 
-### Function Calls
+### Annotations
+
+An annotation is part of an expression containing either a function together with its associated options, or a private-use or reserved sequence.
+
+An annotation can appear in an expression by itself or following a single operand. When following an operand, the operand serves as input to the annotation.
+
+#### Function calls
 
 i18n functions such as common formatters can be called as functions within expressions using the following syntax, with the input followed by the function call and finally the options.
 
@@ -47,6 +53,18 @@ i18n functions such as common formatters can be called as functions within expre
 ```
 Today is {$date :datetime weekday=long}.
 ```
+
+#### Private-use
+
+A private-use annotation is an annotation whose syntax is reserved for use by a specific implementation or by private agreement between multiple implementations. Implementations define their own meaning and semantics for private-use annotations.
+
+A private-use annotation starts with either `&` or `^`.
+
+#### Reserved
+
+A reserved annotation is an annotation whose syntax is reserved for future standardization.
+
+A reserved annotation starts with a reserved character, which would be one of: `!`, `@`, `#`, `%`, `*`, `<`, `>`, `/`, `?` or `~`.
 
 ## Declarations
 
@@ -61,12 +79,12 @@ Unlike JavaScript, declared variables can not be used before their declaration, 
 **EXAMPLE**
 ```
 input {$x :function option=value}
-local $y = {{{This is an expression}}}
+local $y = {{This is an expression}}
 ```
 
 ## Patterns
 
-A pattern contains a sequence of text and placeholders (see: expressions) to be formatted as a unit. Unless there is an error, resolving a message always results in the formatting of a single pattern.
+A pattern contains a sequence of text and placeholders (also called expressions) to be formatted as a unit. Unless there is an error, resolving a message always results in the formatting of a single pattern.
 
 ### Quoted Patterns
 
@@ -74,7 +92,7 @@ A quoted pattern is a pattern that is "quoted" to prevent interference with othe
 
 ### Text
 
-Text is the translateable content of a pattern. Any Unicode code point is allowed, except for surrogate code points U+D800 through U+DFFF inclusive. The characters \, {, and } MUST be escaped as \\, \{, and \} respectively.
+Text is the translateable content of a pattern. Any Unicode code point is allowed, except for surrogate code points U+D800 through U+DFFF inclusive. The characters `\`, `{`, and `}` must be escaped.
 
 Note that whitespace in text, including tabs, spaces, and newlines is significant and will be preserved during formatting.
 
