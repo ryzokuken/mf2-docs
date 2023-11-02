@@ -47,7 +47,7 @@ An annotation can appear in an expression by itself or following a single operan
 
 #### Function calls
 
-i18n functions such as common formatters can be called as functions within expressions using the following syntax, with the input followed by the function call and finally the options.
+i18n functions such as common formatters can be called as functions within expressions using the following syntax, with the operand followed by the function name and finally the options.
 
 **EXAMPLE**
 ```
