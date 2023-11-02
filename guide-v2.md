@@ -88,11 +88,11 @@ A pattern is a sequence of text and placeholders (also called expressions) to be
 
 ### Quoted Patterns
 
-A quoted pattern is a pattern that is "quoted" to prevent interference with other parts of the message. A quoted pattern is enclosed in double braces (`{{...}}`). The current design of the proposal requires *all* patterns to be quoted in non-simple messages.
+A quoted pattern is a pattern that is enclosed in double braces (`{{...}}`). Quoting may be necessary because a pattern may contain characters that have a special meaning in the MessageFormat syntax, and the quotes make it clear that these characters should be interpreted literally. The current design of the proposal requires *all* patterns in complex messages to be quoted.
 
 ### Text
 
-Text is the translateable content of a pattern. Any Unicode code point is allowed, except for surrogate code points U+D800 through U+DFFF inclusive. The characters `\`, `{`, and `}` must be escaped.
+Text is the translatable content of a pattern. Any Unicode code point is allowed, except for surrogate code points U+D800 through U+DFFF inclusive. The characters `\`, `{`, and `}` must be escaped.
 
 Note that whitespace in text, including tabs, spaces, and newlines is significant and will be preserved during formatting.
 
