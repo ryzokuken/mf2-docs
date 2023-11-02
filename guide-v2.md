@@ -43,7 +43,7 @@ Hello, {$userName}!
 
 An annotation is part of an expression containing either a function together with its associated options, or a private-use or reserved sequence.
 
-An annotation can appear in an expression by itself or following a single operand. When following an operand, the operand serves as input to the annotation.
+An annotation can appear in an expression by itself or following a single operand. If an operand is present, that operand is the input to the annotation.
 
 #### Function calls
 
