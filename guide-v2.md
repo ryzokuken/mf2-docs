@@ -4,16 +4,16 @@
 
 ## What is a "Message"?
 
-Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators move around the variable elements according to the grammar of the target language.
+Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators rearrange the variable elements according to the grammar of the target language.
 
-Simple (static) messages can be written as-is, since the default mode is "text mode".
+Simple (static) messages can be written without special syntax, since the default mode is "text mode".
 
 **EXAMPLE**
 ```
 This is a message.
 ```
 
-For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from the templating ecosystem of tools and programming languages.
+For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from templating languages.
 
 **EXAMPLE**
 ```
