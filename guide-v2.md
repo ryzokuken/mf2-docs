@@ -6,18 +6,29 @@
 
 Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators move around the variable elements according to the grammar of the target language.
 
-All messages, including simple static ones, are enclosed in `{…}` delimiters:
+<!-- TODO: Explain literals, maybe patterns?  -->
 
-TODO: Explain literals, maybe patterns?
+Simple (static) messages can be written as-is, since the default mode is "text mode".
 
 **EXAMPLE**
 ```
-{This is a message.}
+This is a message.
+```
+
+For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from the templating ecosystem of tools and programming languages. One thing to note is that once inside code mode, you need a second set of double braces to go back to text mode.
+
+**EXAMPLE**
+```
+{{
+    match {$userType}
+    when guest {{Welcome Guest!}}
+    when registered {{Welcome {$username}!}}
+}}
 ```
 
 ## Evaluating Expressions
 
-An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime.
+An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime. Expressions are enclosed within a single set of braces (`{...}`).
 
 ### Variable Replacement
 
@@ -25,7 +36,7 @@ The most common way to use `MessageFormat` is for simple variable replacement.
 
 **EXAMPLE**
 ```
-{Hello, {$userName}!}
+Hello, {$userName}!
 ```
 
 ### Function Calls
@@ -34,7 +45,7 @@ i18n functions such as common formatters can be called as functions within expre
 
 **EXAMPLE**
 ```
-{Today is {$date :datetime weekday=long}.}
+Today is {$date :datetime weekday=long}.
 ```
 
 ## Built-in Formatters
@@ -47,7 +58,7 @@ A date and time formatter that closely mimics JavaScript Intl's [DateTimeFormat]
 
 **EXAMPLE**
 ```
-{The match on {$date :datetime dateStyle=long} is cancelled.}
+The match on {$date :datetime dateStyle=long} is cancelled.
 ```
 
 **OPTIONS**
@@ -55,7 +66,7 @@ A date and time formatter that closely mimics JavaScript Intl's [DateTimeFormat]
 * `dateStyle`: The base display style to be used for the date component, possible values: `long`, `short` and `narrow`.
 * `timeStyle`: The base display style to be used for the time component, possible values: `long`, `short` and `narrow`.
 
-TODO: list down everything, assume it'll mimic NF.
+<!-- TODO: list down everything, assume it'll mimic DTF. -->
 
 ### Number Formatting
 
@@ -63,11 +74,11 @@ A number formatter that closely mimics JavaScript Intl's [NumberFormat](https://
 
 **EXAMPLE**
 ```
-{Your current account balance is {$amount :number style=currency currency=EUR}.}
+Your current account balance is {$amount :number style=currency currency=EUR}.
 ```
 
 **OPTIONS**
-TODO: list down everything, assume it'll mimic NF.
+<!-- TODO: list down everything, assume it'll mimic NF. -->
 
 ### List Formatting
 
@@ -75,11 +86,11 @@ A list formatter that closely mimics JavaScript Intl's [ListFormat](https://deve
 
 **EXAMPLE**
 ```
-{Cart contains: {$items :list type=conjunction}.}
+Cart contains: {$items :list type=conjunction}.
 ```
 
 **OPTIONS**
-TODO: list down everything, assume it'll mimic LF.
+<!-- TODO: list down everything, assume it'll mimic LF. -->
 
 ## Selectors
 
@@ -91,7 +102,9 @@ A plural selector that closely mimics JavaScript Intl's [PluralRules](https://de
 
 **EXAMPLE**
 ```
-match {$count :plural}
-when one {One new message}
-when other {{$count :number} new messages}
+{{
+    match {$count :plural}
+    when one {{One new message}}
+    when other {{{$count :number} new messages}}
+}}
 ```
