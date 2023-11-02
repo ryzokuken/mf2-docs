@@ -84,7 +84,7 @@ local $y = {|This is an expression|}
 
 ## Patterns
 
-A pattern contains a sequence of text and placeholders (also called expressions) to be formatted as a unit. Unless there is an error, resolving a message always results in the formatting of a single pattern.
+A pattern is a sequence of text and placeholders (also called expressions) to be formatted as a unit. Unless there is an error, the result of formatting a message is always the result of formatting a single pattern: either the single pattern that makes up a simple message, or the pattern of the matching variant in a complex message.
 
 ### Quoted Patterns
 
