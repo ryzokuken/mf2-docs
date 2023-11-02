@@ -74,12 +74,12 @@ An **input** declaration binds a variable to an external input value.
 
 A **local** declaration binds a variable to the resolved value of an expression.
 
-Unlike JavaScript, declared variables can not be used before their declaration, and their values mustn't be self-referential; otherwise, a message is not considered valid. Declaring a variable multiple times results in an invalid message as well.
+Unlike in JavaScript, declared variables cannot be used before their declaration, and their values mustn't be self-referential; otherwise, a message is not considered valid. Declaring the same variable multiple times results in an invalid message as well.
 
 **EXAMPLE**
 ```
 input {$x :function option=value}
-local $y = {{This is an expression}}
+local $y = {|This is an expression|}
 ```
 
 ## Patterns
