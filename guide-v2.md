@@ -15,7 +15,7 @@ Simple (static) messages can be written as-is, since the default mode is "text m
 This is a message.
 ```
 
-For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from the templating ecosystem of tools and programming languages. One thing to note is that once inside code mode, you need a second set of double braces to go back to text mode.
+For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from the templating ecosystem of tools and programming languages.
 
 **EXAMPLE**
 ```
@@ -46,6 +46,44 @@ i18n functions such as common formatters can be called as functions within expre
 **EXAMPLE**
 ```
 Today is {$date :datetime weekday=long}.
+```
+
+## Declarations
+
+A declaration binds a variable identifier to a value within the scope of a message. This variable can then be used in other expressions within the same message. Declarations are optional: many messages will not contain any declarations.
+
+An **input** declaration binds a variable to an external input value.
+
+A **local** declaration binds a variable to the resolved value of an expression.
+
+Unlike JavaScript, declared variables can not be used before their declaration, and their values mustn't be self-referential; otherwise, a message is not considered valid. Declaring a variable multiple times results in an invalid message as well.
+
+**EXAMPLE**
+```
+input {$x :function option=value}
+local $y = {{{This is an expression}}}
+```
+
+## Patterns
+
+A pattern contains a sequence of text and placeholders (see: expressions) to be formatted as a unit. Unless there is an error, resolving a message always results in the formatting of a single pattern.
+
+### Quoted Patterns
+
+A quoted pattern is a pattern that is "quoted" to prevent interference with other parts of the message. A quoted pattern is enclosed in double braces (`{{...}}`). The current design of the proposal requires *all* patterns to be quoted in non-simple messages.
+
+### Text
+
+Text is the translateable content of a pattern. Any Unicode code point is allowed, except for surrogate code points U+D800 through U+DFFF inclusive. The characters \, {, and } MUST be escaped as \\, \{, and \} respectively.
+
+Note that whitespace in text, including tabs, spaces, and newlines is significant and will be preserved during formatting.
+
+**EXAMPLE**
+```
+{{
+    input {$num :number}
+    {{   This is the {$num} pattern   }}
+}}
 ```
 
 ## Built-in Formatters
