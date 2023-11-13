@@ -54,6 +54,8 @@ Annotations can call functions, including either custom functions that are regis
 **EXAMPLE**
 ```
 Today is {$date :datetime weekday=long}.
+
+Check out {:img src=|image.png|}.
 ```
 
 #### Private-use
