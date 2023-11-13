@@ -4,21 +4,23 @@
 
 ## What is a "Message"?
 
-Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators move around the variable elements according to the grammar of the target language.
+Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators rearrange the variable elements according to the grammar of the target language.
 
-Simple (static) messages can be written as-is, since the default mode is "text mode".
+The simplest and most common use-case of such applications is to replace placeholders in applications with locale-specific messages.
+
+Simple (static) messages can be written without utilizing special syntax, since the default mode is "text mode".
 
 **EXAMPLE**
 ```
 This is a message.
 ```
 
-For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from the templating ecosystem of tools and programming languages.
+For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from templating languages. While overkill for simple messages, code mode gives you great flexibility for constucting messages.
 
 **EXAMPLE**
 ```
 {{
-    match {$userType}
+    match {$userType :equals}
     when guest {{Welcome Guest!}}
     when registered {{Welcome {$username}!}}
 }}
@@ -28,11 +30,11 @@ For more complex messages, you need to switch into "code mode" by using a set of
 
 ## Expressions
 
-An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime. Expressions are enclosed within a single set of braces (`{...}`).
+An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime. Expressions are enclosed within a single set of braces (`{...}`). The two kinds of expressions you could have in your messages are:
 
 ### Variable Replacement
 
-The most common way to use `MessageFormat` is for simple variable replacement.
+The most common way to use `MessageFormat` is for simple variable replacement within messages.
 
 **EXAMPLE**
 ```
@@ -41,13 +43,13 @@ Hello, {$userName}!
 
 ### Annotations
 
-An annotation is part of an expression containing either a function together with its associated options, or a private-use or reserved sequence.
+An annotation is part of an expression containing either a function call together with its associated options, or a private-use or reserved sequence.
 
-An annotation can appear in an expression by itself or following a single operand. When following an operand, the operand serves as input to the annotation.
+An annotation can appear in an expression by itself or following a single operand. If an operand is present, that operand serves as input to the annotation.
 
 #### Function calls
 
-i18n functions such as common formatters can be called as functions within expressions using the following syntax, with the input followed by the function call and finally the options.
+Annotations can call functions, including either custom functions that are registered by the user in the function registry or default functions which are supposed to assist you in performing common i18n operations such as formatting common data types. The syntax for making function calls is as follows, with the operand followed by the function name and finally the options.
 
 **EXAMPLE**
 ```
@@ -72,19 +74,19 @@ A declaration binds a variable identifier to a value within the scope of a messa
 
 An **input** declaration binds a variable to an external input value.
 
-A **local** declaration binds a variable to the resolved value of an expression.
+A **local** declaration binds a variable to the value of an expression.
 
-Unlike JavaScript, declared variables can not be used before their declaration, and their values mustn't be self-referential; otherwise, a message is not considered valid. Declaring a variable multiple times results in an invalid message as well.
+Unlike in JavaScript, declared variables cannot be used before their declaration, and their values mustn't be self-referential; otherwise, a message is not considered valid. Declaring the same variable multiple times results in an invalid message as well.
 
 **EXAMPLE**
 ```
 input {$x :function option=value}
-local $y = {{This is an expression}}
+local $y = {|This is an expression|}
 ```
 
 ## Patterns
 
-A pattern contains a sequence of text and placeholders (also called expressions) to be formatted as a unit. Unless there is an error, resolving a message always results in the formatting of a single pattern.
+A pattern is a sequence of text and placeholders (also called expressions) to be formatted as a unit. Unless there is an error, resolving a message always results in the formatting of a single pattern.
 
 ### Quoted Patterns
 
@@ -151,6 +153,8 @@ Cart contains: {$items :list type=conjunction}.
 ## Selectors
 
 The second class of functions, apart from formatters are selectors. As opposed to formatters which format an input value inside a pattern, selectors allow you to "select" one of many patterns based on performing some kind of locale-sensitive operation on a value.
+
+<!-- TODO: confirm if implicit selectors are going to exist and document the behavior -->
 
 ### Plural Selection
 
