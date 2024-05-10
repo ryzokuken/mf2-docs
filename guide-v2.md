@@ -1,12 +1,14 @@
 # MessageFormat for JavaScript Developers
 
-`MessageFormat` is a new WIP functionality that would act as a Swiss Army knife for all your i18n needs, allowing you to localize interfaces with great ease.
+`MessageFormat` is a new functionality that can act as a Swiss Army knife for all your i18n needs, allowing you to localize interfaces with great ease. `MessageFormat` is currently in "tech preview" mode, with an alpha release.
 
 ## What is a "Message"?
 
 Messages are user-visible strings, often with variable elements like names, numbers and dates. Message strings are typically translated into the different languages of a UI, and translators rearrange the variable elements according to the grammar of the target language.
 
 The simplest and most common use-case of such applications is to replace placeholders in applications with locale-specific messages.
+
+### Simple Messages
 
 Simple (static) messages can be written without utilizing special syntax, since the default mode is "text mode".
 
@@ -15,18 +17,23 @@ Simple (static) messages can be written without utilizing special syntax, since 
 This is a message.
 ```
 
-For more complex messages, you need to switch into "code mode" by using a set of double braces (`{{...}}`). This is syntax you might be familiar with from templating languages. While overkill for simple messages, code mode gives you great flexibility for constucting messages.
+### Complex Messages
+More complex messages begin with a keyword. All keywords begin with a '.' character. Complex messages can include variants, declarations, or both. Here is a message with variants:
 
 **EXAMPLE**
 ```
-{{
-    match {$userType :equals}
-    when guest {{Welcome Guest!}}
-    when registered {{Welcome {$username}!}}
-}}
+ .match {$userType :equals}
+ guest {{Welcome Guest!}}
+ registered {{Welcome {$username}!}}
 ```
 
+Because this message begins with the keyword `.match`, you can tell that it's a `matcher`. We'll explain matchers in more details later. For now, notice that there are two different patterns, `{{Welcome Guest!}}` and `{{Welcome {$username}!}}`. These patterns are enclosed in double sets of curly braces. This is syntax you might be familiar with from templating languages.
+
 <!-- TODO: explain literals? -->
+
+## Placeholders
+
+A _placeholder_ can either be an _expression_ or a _markup_. We'll talk about expressions first.
 
 ## Expressions
 
@@ -43,11 +50,24 @@ Hello, {$userName}!
 
 ### Annotations
 
-An annotation is part of an expression containing either a function call together with its associated options, or a private-use or reserved sequence.
+<!-- TODO: I'm not sure how useful it is to talk about private-use and reserved expressions in this doc -->
 
-An annotation can appear in an expression by itself or following a single operand. If an operand is present, that operand serves as input to the annotation.
+Variables can also be decorated with annotations.
 
-#### Function calls
+**EXAMPLE**
+```
+Today is {$date :datetime weekday=long}.
+```
+
+Because it begins with a `:`, you can tell that `:datetime` is the name of a _function_. In MessageFormat, we say that `$date` is _annotated_ with the annotation `:datetime weekday=long`. This is analogous to a function call, with `:datetime` as the function and the runtime value of `$date` as the argument. In this annotation, we say that `$date` is the _operand_ of `:datetime`. The annotation can also have any number of named options. In this case, there is one named option: the literal string `long`, associated with the name `weekday`.
+
+In general, an annotation is a part of an expression containing either a function call together with its associated options, or a private-use or reserved sequence.
+
+An annotation can appear in an expression by itself or following a single operand. If an operand is present, that operand serves as input to the annotation. (Currently, all the built-in functions in MessageFormat are required to have an operand.)
+
+#### Functions
+
+When you write an annotation in your MessageFormat message, then underneath the hood, the formatter calls a function. MessageFormat has some built-in functions that assist you in performing common i18n operations like formatting common data types. You can also write custom functions. We'll talk more about functions later in the document.
 
 Annotations can call functions, including either custom functions that are registered by the user in the function registry or default functions which are supposed to assist you in performing common i18n operations such as formatting common data types. The syntax for making function calls is as follows, with the operand followed by the function name and finally the options.
 
@@ -57,6 +77,19 @@ Today is {$date :datetime weekday=long}.
 
 Check out {:img src=|image.png|}.
 ```
+
+## Markup
+
+Another type of placeholder is a _markup_. A markup can be "open", "close", or "standalone". This example shows open and close markups.
+
+**EXAMPLE**
+```
+Click {#link}here{/link}. {#b}{$count}{/b}
+```
+
+`{#link}` is an opening markup, while `{/link}` is a closing markup.
+
+Markup is not specific to any particular markup language such as HTML. The message formatter doesn't interpret markup. It simply passes pieces of markup through into the formatted result.
 
 #### Private-use
 
@@ -76,23 +109,54 @@ A declaration binds a variable identifier to a value within the scope of a messa
 
 An **input** declaration binds a variable to an external input value.
 
-A **local** declaration binds a variable to the value of an expression.
-
-Unlike in JavaScript, declared variables cannot be used before their declaration, and their values mustn't be self-referential; otherwise, a message is not considered valid. Declaring the same variable multiple times results in an invalid message as well.
+A **local** declaration binds a variable to the value of an expression. `.local` is like `const` in JavaScript.
 
 **EXAMPLE**
 ```
-input {$x :function option=value}
-local $y = {|This is an expression|}
+.input {$x :number style=percent}
+.local $y = {|This is an expression|}
+{{$y}}
 ```
+
+This message works without errors as long as `x` is provided as an external input value. If so, then the annotation in the `.input` declaration is applied to the value passed in for `x`: it's formatted as a number with the style "percent".
+
+`.input` declarations are optional, so a variable that appears without a declaration is assumed to be an external input value.
+
+**EXAMPLE**
+```
+{{$y}}
+```
+
+The formatter signals a runtime error if `y` is not provided as an external input value.
+
+The value of a variable can't be self-referential, and a variable declared with `.local` can't be referenced before they are used. Also, the same variable can't be declared multiple times.
 
 ## Patterns
 
-A pattern is a sequence of text and placeholders (also called expressions) to be formatted as a unit. Unless there is an error, the result of formatting a message is always the result of formatting a single pattern: either the single pattern that makes up a simple message, or the pattern of the matching variant in a complex message.
+A pattern is a sequence of text and placeholders to be formatted as a unit. Unless there is an error, the result of formatting a message is always the result of formatting a single pattern: either the single pattern that makes up a simple message, or the pattern of the matching variant in a complex message.
+
+Almost anything not beginning with a `.` or a `{{` is an _unquoted pattern_ in MessageFormat. An unquoted pattern, on its own, is a simple message.
+
+**EXAMPLE**
+```
+This is a pattern. It can include expressions like {$v} and {#b}markup{/b}.
+```
+
+There are certain characters that can't appear in an unquoted pattern. You probably won't run into these at first.
 
 ### Quoted Patterns
 
-A quoted pattern is a pattern that is enclosed in double braces (`{{...}}`). Quoting may be necessary because a pattern may contain characters that have a special meaning in the MessageFormat syntax, and the quotes make it clear that these characters should be interpreted literally. The current design of the proposal requires *all* patterns in complex messages to be quoted.
+A quoted pattern is a pattern that is enclosed in double braces (`{{...}}`). Quoting may be necessary because a pattern may contain characters that have a special meaning in the MessageFormat syntax, and the quotes make it clear that these characters should be interpreted literally.
+
+Also, *all* patterns that appear in complex messages must be quoted. So in a message that has declarations:
+
+**EXAMPLE**
+```
+.local $y = {1}
+{{This pattern must be quoted.}}
+```
+
+Patterns in a _matcher_ must also be quoted. We'll talk about matchers later.
 
 ### Text
 
@@ -102,11 +166,43 @@ Note that whitespace in text, including tabs, spaces, and newlines is significan
 
 **EXAMPLE**
 ```
-{{
-    input {$num :number}
-    {{   This is the {$num} pattern   }}
-}}
+.input {$num :number}
+{{   This is the {$num} pattern   }}
 ```
+
+## Matchers
+
+A _matcher_ is a feature in MessageFormat that lets you group together different _variants_ of a message, in which one variant is chosen based on runtime data.
+
+**EXAMPLE**
+```
+.input {$count :number}
+.match {$count}
+one {{You have {$count} notification.}}
+*   {{You have {$count} notifications.}}
+```
+
+The annotation on the variable `$count` determines how selection is done. In this case, the annotation `:number` means that `$count` is examined based on its plural category. `:number` is an example of a _selector function_. You might remember that `:number` is also a _formatting function_. Some functions are both a selector and a formatter, while others can only be one or the other.
+
+The `.match` keyword has to be followed by an expression: in this case, `{$count}`. We call `{$count}` the _selector_ of a matcher. 
+
+`one` and `*` are both _keys_. The key `one` matches the runtime value of `$count` based on that value's plural category. The key `*` is special and matches any value.
+
+The quoted pattern that follows each key is the pattern to use if the key matches.
+
+More complicated matchers can have multiple keys and multiple selectors.
+
+Let's work through how this message is formatted depending on the runtime value of `{$count}`. Suppose `$count` is `1`. 
+* The `:number` selector looks at the value (`1`) and the keys (`one` and `*`). It determines that `one` is the best match.
+* The pattern `{{You have {$count} notification.}}` is chosen.
+* The variable is replaced with its value, and the result is `You have 1 notification.`
+
+Now let's suppose `$count` is `42`.
+* The `:number` selector looks at the value (`42`) and the keys (`one` and `*`). The only key that can match in this case is the wildcard, `*`.
+* The pattern `{{You have {$count} notifications.}}` is chosen.
+* The variable is replaced with its value, and the result is `You have 42 notifications.`
+
+The details of how values are matched again keys depend on the annotation of the selector. `:number` is just one example.
 
 ## Built-in Formatters
 
@@ -114,59 +210,81 @@ A number of commonly used formatters are built into all `MessageFormat` implemen
 
 ### Date and Time Formatting
 
-A date and time formatter that closely mimics JavaScript Intl's [DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat) is available as the `:datetime` function in `MessageFormat`.
+A date and time formatter that closely mimics JavaScript Intl's [DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat) is available as the `:datetime` function in `MessageFormat`. Two more functions, `:date` and `:time`, are included. `:date` only formats the date, while `:time` formats the time.
 
 **EXAMPLE**
 ```
 The match on {$date :datetime dateStyle=long} is cancelled.
 ```
 
+**EXAMPLE**
+```
+The match on {$date :date style=long} is cancelled.
+```
+
+**EXAMPLE**
+```
+The match at {$date :time style=medium} is cancelled.
+```
+
 **OPTIONS**
-* `style`: The base display style to be used across the entire date time, possible values: `long`, `short` and `narrow`.
-* `dateStyle`: The base display style to be used for the date component, possible values: `long`, `short` and `narrow`.
-* `timeStyle`: The base display style to be used for the time component, possible values: `long`, `short` and `narrow`.
+* `style`: The base display style to be used across the entire date time, possible values: `full`, `long`, `medium`, and `short`.
+* `dateStyle`: The base display style to be used for the date component, possible values: `full`, `long`, `medium`, and `short`.
+* `timeStyle`: The base display style to be used for the time component, possible values: `full`, `long`, `medium`, and `short`.
+
+`:datetime` can also accept a number of _field options_. The entire list of options is in [the specification](https://github.com/unicode-org/message-format-wg/blob/main/spec/registry.md#the-datetime-function).
 
 <!-- TODO: list down everything, assume it'll mimic DTF. -->
 
 ### Number Formatting
 
-A number formatter that closely mimics JavaScript Intl's [NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) is available as the `:number` function in `MessageFormat`.
+A number formatter that closely mimics JavaScript Intl's [NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) is available as the `:number` function in `MessageFormat`. A second function, `:integer`, is similar to `:number` but always formats is input as an integer.
 
 **EXAMPLE**
 ```
-Your current account balance is {$amount :number style=currency currency=EUR}.
+The average number of plants per household is {$amount :number minimumFractionDigits=2}.
+```
+
+**EXAMPLE**
+```
+The median number of plants per household is {$amount :integer}.
 ```
 
 **OPTIONS**
 <!-- TODO: list down everything, assume it'll mimic NF. -->
 
-### List Formatting
-
-A list formatter that closely mimics JavaScript Intl's [ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/ListFormat) is available as the `:list` function in `MessageFormat`.
-
-**EXAMPLE**
-```
-Cart contains: {$items :list type=conjunction}.
-```
-
-**OPTIONS**
-<!-- TODO: list down everything, assume it'll mimic LF. -->
+The entire list of options is in [the specification](https://github.com/unicode-org/message-format-wg/blob/main/spec/registry.md#the-number-function).
 
 ## Selectors
 
-The second class of functions, apart from formatters are selectors. As opposed to formatters which format an input value inside a pattern, selectors allow you to "select" one of many patterns based on performing some kind of locale-sensitive operation on a value.
+The second class of functions, apart from formatters, are selectors. As opposed to formatters which format an input value inside a pattern, selectors allow you to "select" one of many patterns based on performing some kind of locale-sensitive operation on a value.
+
+Selectors always have to be specified explicitly; you can't write `.match {$x} ...`, because `$x` is not declared explicitly. You could fix this message by writing either: `.match {$x :number} ...`; `.input {$x :number} .match {$x} ...`; or `.local $x = {1: number} .match {$x} ...`.
 
 <!-- TODO: confirm if implicit selectors are going to exist and document the behavior -->
 
 ### Plural Selection
 
-A plural selector that closely mimics JavaScript Intl's [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules) is available as the `:plural` function in `MessageFormat`.
+A plural selector that closely mimics JavaScript Intl's [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules) is available as the `:number` function in `MessageFormat`. Notice that `:number` has two meanings: as a formatting annotation, and as a selector annotation. The meaning is disambiguated based on context.
 
 **EXAMPLE**
 ```
-{{
-    match {$count :plural}
-    when one {{One new message}}
-    when other {{{$count :number} new messages}}
-}}
+.match {$count :number}
+one {{One new message}}
+*   {{{$count :number} new messages}}
 ```
+
+
+### String Selection
+
+A selector named `:string` that just does literal string comparison is provided.
+
+**EXAMPLE**
+```
+.match {$pronoun :string}
+she {{{$user} added you to her friends list.}}
+he  {{{$user} added you to his friends list.}}
+*   {{{$user} added you to their friends list.}}
+```
+
+In this example, the runtime value of `$pronoun` is treated as a string and literally compared to the strings `she` and `he`. If it's not equal to any of the other strings, then the `*` variant is used.
