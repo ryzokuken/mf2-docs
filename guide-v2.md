@@ -33,7 +33,7 @@ Because this message begins with the keyword `.match`, you can tell that it's a 
 
 ## Placeholders
 
-A _placeholder_ can either be an _expression_ or a _markup_. We'll talk about expressions first.
+A _placeholder_ can either be an _expression_ or a _markup placeholder_. We'll talk about expressions first.
 
 ## Expressions
 
@@ -80,14 +80,14 @@ Check out {:img src=|image.png|}.
 
 ## Markup
 
-Another type of placeholder is a _markup_. A markup can be "open", "close", or "standalone". This example shows open and close markups.
+Another type of placeholder is a _markup placeholder_. A markup placeholder can be "open", "close", or "standalone". This example shows open and close markup placeholders.
 
 **EXAMPLE**
 ```
 Click {#link}here{/link}. {#b}{$count}{/b}
 ```
 
-`{#link}` is an opening markup, while `{/link}` is a closing markup.
+`{#link}` is an opening markup placeholder, while `{/link}` is a closing markup placeholder.
 
 Markup is not specific to any particular markup language such as HTML. The message formatter doesn't interpret markup. It simply passes pieces of markup through into the formatted result.
 
