@@ -1,4 +1,4 @@
-# MessageFormat for JavaScript Developers
+# MessageFormat Syntax for JavaScript Developers
 
 `MessageFormat` is a new functionality that can act as a Swiss Army knife for all your i18n needs, allowing you to localize interfaces with great ease. `MessageFormat` is currently in "tech preview" mode, with an alpha release.
 
