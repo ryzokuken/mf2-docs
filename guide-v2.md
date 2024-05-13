@@ -29,8 +29,6 @@ More complex messages begin with a keyword. All keywords begin with a '.' charac
 
 Because this message begins with the keyword `.match`, you can tell that it's a `matcher`. We'll explain matchers in more details later. For now, notice that there are two different patterns, `{{Welcome Guest!}}` and `{{Welcome {$username}!}}`. These patterns are enclosed in double sets of curly braces. This is syntax you might be familiar with from templating languages.
 
-<!-- TODO: explain literals? -->
-
 ## Placeholders
 
 A _placeholder_ can either be an _expression_ or a _markup placeholder_. We'll talk about expressions first.
@@ -50,8 +48,6 @@ Hello, {$userName}!
 
 ### Annotations
 
-<!-- TODO: I'm not sure how useful it is to talk about private-use and reserved expressions in this doc -->
-
 Variables can also be decorated with annotations.
 
 **EXAMPLE**
@@ -64,6 +60,10 @@ Because it begins with a `:`, you can tell that `:datetime` is the name of a _fu
 In general, an annotation is a part of an expression containing either a function call together with its associated options, or a private-use or reserved sequence.
 
 An annotation can appear in an expression by itself or following a single operand. If an operand is present, that operand serves as input to the annotation. (Currently, all the built-in functions in MessageFormat are required to have an operand.)
+
+#### Literals
+
+In the example above, `long` is a _literal_. Literals can appear in various contexts in an MF2 message. For example, the right-hand side (part appearing to the right of an '=' sign) of an option can be either a variable or a literal. You can tell that it's a literal in this case because it doesn't belong with `$`. Rarely, literals have to be quoted (enclosed in `|` / `|` characters).
 
 #### Functions
 
@@ -78,6 +78,8 @@ Today is {$date :datetime weekday=long}.
 Check out {:img src=|image.png|}.
 ```
 
+The text `|image.png|` is an example of a _quoted_ literal. It has to be quoted because it includes a '.' character. In general, literals containing non-alphanumeric characters have to be quoted.
+
 ## Markup
 
 Another type of placeholder is a _markup placeholder_. A markup placeholder can be "open", "close", or "standalone". This example shows open and close markup placeholders.
@@ -90,18 +92,6 @@ Click {#link}here{/link}. {#b}{$count}{/b}
 `{#link}` is an opening markup placeholder, while `{/link}` is a closing markup placeholder.
 
 Markup is not specific to any particular markup language such as HTML. The message formatter doesn't interpret markup. It simply passes pieces of markup through into the formatted result.
-
-#### Private-use
-
-A private-use annotation is an annotation whose syntax is reserved for use by a specific implementation or by private agreement between multiple implementations. Implementations define their own meaning and semantics for private-use annotations.
-
-A private-use annotation starts with either `&` or `^`.
-
-#### Reserved
-
-A reserved annotation is an annotation whose syntax is reserved for future standardization.
-
-A reserved annotation starts with a reserved character, which would be one of: `!`, `@`, `#`, `%`, `*`, `<`, `>`, `/`, `?` or `~`.
 
 ## Declarations
 
@@ -234,8 +224,6 @@ The match at {$date :time style=medium} is cancelled.
 
 `:datetime` can also accept a number of _field options_. The entire list of options is in [the specification](https://github.com/unicode-org/message-format-wg/blob/main/spec/registry.md#the-datetime-function).
 
-<!-- TODO: list down everything, assume it'll mimic DTF. -->
-
 ### Number Formatting
 
 A number formatter that closely mimics JavaScript Intl's [NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) is available as the `:number` function in `MessageFormat`. A second function, `:integer`, is similar to `:number` but always formats is input as an integer.
@@ -251,7 +239,6 @@ The median number of plants per household is {$amount :integer}.
 ```
 
 **OPTIONS**
-<!-- TODO: list down everything, assume it'll mimic NF. -->
 
 The entire list of options is in [the specification](https://github.com/unicode-org/message-format-wg/blob/main/spec/registry.md#the-number-function).
 
@@ -260,8 +247,6 @@ The entire list of options is in [the specification](https://github.com/unicode-
 The second class of functions, apart from formatters, are selectors. As opposed to formatters which format an input value inside a pattern, selectors allow you to "select" one of many patterns based on performing some kind of locale-sensitive operation on a value.
 
 Selectors always have to be specified explicitly; you can't write `.match {$x} ...`, because `$x` is not declared explicitly. You could fix this message by writing either: `.match {$x :number} ...`; `.input {$x :number} .match {$x} ...`; or `.local $x = {1: number} .match {$x} ...`.
-
-<!-- TODO: confirm if implicit selectors are going to exist and document the behavior -->
 
 ### Plural Selection
 
@@ -288,3 +273,19 @@ he  {{{$user} added you to his friends list.}}
 ```
 
 In this example, the runtime value of `$pronoun` is treated as a string and literally compared to the strings `she` and `he`. If it's not equal to any of the other strings, then the `*` variant is used.
+
+## Appendix
+
+This section covers advanced features. There's no need to worry about understanding these features at first.
+
+### Private-use annotations
+
+A private-use annotation is an annotation whose syntax is reserved for use by a specific implementation or by private agreement between multiple implementations. Implementations define their own meaning and semantics for private-use annotations.
+
+A private-use annotation starts with either `&` or `^`.
+
+### Reserved annotations
+
+A reserved annotation is an annotation whose syntax is reserved for future standardization.
+
+A reserved annotation starts with a reserved character, which would be one of: `!`, `@`, `#`, `%`, `*`, `<`, `>`, `/`, `?` or `~`.
