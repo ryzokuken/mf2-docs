@@ -22,10 +22,9 @@ More complex messages begin with a keyword. All keywords begin with a '.' charac
 
 **EXAMPLE**
 ```
-.match {$count :integer}
-0   {{You have no notifications.}}
-one {{You have {$count} notification.}}
-*   {{You have {$count} notifications.}}
+.match {$userType :string}
+guest {{Welcome Guest!}}
+registered {{Welcome {$username}!}}
 ```
 
 Because this message begins with the keyword `.match`, you can tell that it's a `matcher`. We'll explain matchers in more details later. For now, notice that there are two different patterns, `{{Welcome Guest!}}` and `{{Welcome {$username}!}}`. These patterns are enclosed in double sets of curly braces. This is syntax you might be familiar with from templating languages.
@@ -167,9 +166,10 @@ A _matcher_ is a feature in MessageFormat that lets you group together different
 
 **EXAMPLE**
 ```
-.match {$userType :equals}
-guest {{Welcome Guest!}}
-registered {{Welcome {$username}!}}
+.input {$count :number}
+.match {$count}
+one {{You have {$count} notification.}}
+*   {{You have {$count} notifications.}}
 ```
 
 The annotation on the variable `$count` determines how selection is done. In this case, the annotation `:number` means that `$count` is examined based on its plural category. `:number` is an example of a _selector function_. You might remember that `:number` is also a _formatting function_. Some functions are both a selector and a formatter, while others can only be one or the other.
