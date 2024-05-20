@@ -164,13 +164,12 @@ A _matcher_ is a feature in MessageFormat that lets you group together different
 
 **EXAMPLE**
 ```
-.input {$count :number}
-.match {$count}
+.match {$count :number}
 one {{You have {$count} notification.}}
 *   {{You have {$count} notifications.}}
 ```
 
-The annotation on the variable `$count` determines how selection is done. In this case, the annotation `:number` means that `$count` is examined based on its plural category. `:number` is an example of a _selector function_. You might remember that `:number` is also a _formatting function_. Some functions are both a selector and a formatter, while others can only be one or the other.
+The annotation on the variable `$count` determines how selection is done. In this case, the annotation `:number` means that `$count` is examined as a numerical value based on its plural category, which happens to be the default selection category for numbers (the other options include ordinal categories for instance). `:number` is an example of a _selector function_. You might remember that `:number` is also a _formatting function_. Some functions are both a selector and a formatter, while others can only be one or the other.
 
 The `.match` keyword has to be followed by an expression: in this case, `{$count}`. We call `{$count}` the _selector_ of a matcher.
 
