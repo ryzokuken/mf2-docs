@@ -67,9 +67,7 @@ In the example above, `long` is a _literal_. Literals can appear in various cont
 
 #### Functions
 
-When you write an annotation in your MessageFormat message, then underneath the hood, the formatter calls a function. MessageFormat has some built-in functions that assist you in performing common i18n operations like formatting common data types. You can also write custom functions. We'll talk more about functions later in the document.
-
-Annotations can call functions, including either custom functions that are registered by the user in the function registry or default functions which are supposed to assist you in performing common i18n operations such as formatting common data types. The syntax for making function calls is as follows, with the operand followed by the function name and finally the options.
+When you write an annotation in your MessageFormat message, then underneath the hood, the formatter calls a function. These could either be built-in functions that aim to assist you in performing common i18n operations like formatting common data types or custom functions that are registered by the user in the function registry. The syntax for making function calls is as follows, with the operand followed by the function name and finally the options.
 
 **EXAMPLE**
 ```
@@ -258,7 +256,6 @@ A plural selector that closely mimics JavaScript Intl's [PluralRules](https://de
 one {{One new message}}
 *   {{{$count :number} new messages}}
 ```
-
 
 ### String Selection
 
