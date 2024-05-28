@@ -8,7 +8,7 @@ Messages are user-visible strings, often with variable elements like names, numb
 
 The simplest and most common use-case of such applications is to replace placeholders in applications with locale-specific messages.
 
-### Simple Messages
+## Simple Messages
 
 Simple (static) messages can be written without utilizing special syntax, since the default mode is "text mode".
 
@@ -17,27 +17,15 @@ Simple (static) messages can be written without utilizing special syntax, since 
 This is a message.
 ```
 
-### Complex Messages
-More complex messages begin with a keyword. All keywords begin with a '.' character. Complex messages can include variants, declarations, or both. Here is a message with variants:
-
-**EXAMPLE**
-```
-.match {$userType :string}
-guest {{Welcome Guest!}}
-registered {{Welcome {$username}!}}
-```
-
-Because this message begins with the keyword `.match`, you can tell that it's a `matcher`. We'll explain matchers in more details later. For now, notice that there are two different patterns, `{{Welcome Guest!}}` and `{{Welcome {$username}!}}`. These patterns are enclosed in double sets of curly braces. This is syntax you might be familiar with from templating languages.
-
-## Placeholders
+### Placeholders
 
 A _placeholder_ can either be an _expression_ or a _markup placeholder_. We'll talk about expressions first.
 
-## Expressions
+### Expressions
 
 An expression represents a dynamic part of a message that will be determined during the message's formatting at runtime. Expressions are enclosed within a single set of braces (`{...}`). The two kinds of expressions you could have in your messages are:
 
-### Variable Replacement
+#### Variable Replacement
 
 The most common way to use `MessageFormat` is for simple variable replacement within messages.
 
@@ -46,7 +34,7 @@ The most common way to use `MessageFormat` is for simple variable replacement wi
 Hello, {$userName}!
 ```
 
-### Annotations
+#### Annotations
 
 Variables can also be decorated with annotations.
 
@@ -91,7 +79,23 @@ Click {#link}here{/link}. {#b}{$count}{/b}
 
 Markup is not specific to any particular markup language such as HTML. The message formatter doesn't interpret markup. It simply passes pieces of markup through into the formatted result.
 
-## Declarations
+## Complex Messages
+More complex messages begin with a keyword. All keywords begin with a '.' character. Complex messages can include variants, declarations, or both.
+
+### Variants
+
+Here is a message with variants:
+
+**EXAMPLE**
+```
+.match {$userType :string}
+guest {{Welcome Guest!}}
+registered {{Welcome {$username}!}}
+```
+
+Because this message begins with the keyword `.match`, you can tell that it's a `matcher`. We'll explain matchers in more details later. For now, notice that there are two different patterns, `{{Welcome Guest!}}` and `{{Welcome {$username}!}}`. These patterns are enclosed in double sets of curly braces. This is syntax you might be familiar with from templating languages.
+
+### Declarations
 
 A declaration binds a variable identifier to a value within the scope of a message. This variable can then be used in other expressions within the same message. Declarations are optional: many messages will not contain any declarations.
 
@@ -178,11 +182,13 @@ A _matcher_ is a feature in MessageFormat that lets you group together different
 **EXAMPLE**
 ```
 .match {$count :number}
-one {{You have {$count} notification.}}
-*   {{You have {$count} notifications.}}
+one {{You have {$count} week.}}
+*   {{You have {$count} weeks.}}
 ```
 
 The annotation on the variable `$count` determines how selection is done. In this case, the annotation `:number` means that `$count` is examined as a numerical value based on its plural category, which happens to be the default selection category for numbers (the other options include ordinal categories for instance). `:number` is an example of a _selector function_. You might remember that `:number` is also a _formatting function_. Some functions are both a selector and a formatter, while others can only be one or the other.
+
+The `:number` function has the built-in ability to map values onto plural categories. This mapping is based on CLDR data and it doesn't have to be provided to the formatter explicitly.
 
 The `.match` keyword has to be followed by an expression: in this case, `{$count}`. We call `{$count}` the _selector_ of a matcher.
 
@@ -194,15 +200,38 @@ More complicated matchers can have multiple keys and multiple selectors.
 
 Let's work through how this message is formatted depending on the runtime value of `{$count}`. Suppose `$count` is `1`.
 * The `:number` selector looks at the value (`1`) and the keys (`one` and `*`). It determines that `one` is the best match.
-* The pattern `{{You have {$count} notification.}}` is chosen.
-* The variable is replaced with its value, and the result is `You have 1 notification.`
+* The pattern `{{You have {$count} week.}}` is chosen.
+* The variable is replaced with its value, and the result is `You have 1 week.`
 
 Now let's suppose `$count` is `42`.
 * The `:number` selector looks at the value (`42`) and the keys (`one` and `*`). The only key that can match in this case is the wildcard, `*`.
-* The pattern `{{You have {$count} notifications.}}` is chosen.
-* The variable is replaced with its value, and the result is `You have 42 notifications.`
+* The pattern `{{You have {$count} weeks.}}` is chosen.
+* The variable is replaced with its value, and the result is `You have 42 weeks.`
 
 The details of how values are matched again keys depend on the annotation of the selector. `:number` is just one example.
+
+### Number selection in other languages
+
+While English only has two plural categories, there are other natural languages that
+have more categories. Consider translating the example into Polish:
+
+**EXAMPLE**
+```
+.match {$count :number}
+one {{Masz {$count} tydzień.}}
+few {{Masz {$count} tygodnie.}}
+many {{Masz {$count} tygodni.}}
+other {{Masz {$count} tygodnia.}}
+* {{Masz {$count} tygodnia.}}
+```
+
+This shows why the `:number` selector is useful: when translating the first example
+from English to Polish, the translator knows how to create a Polish version
+that covers all the plural categories. For more information, see the
+[CLDR page](https://cldr.unicode.org/index/cldr-spec/plural-rules) on plural rules.
+
+(By the way, the `*` variant is always required. This example could be rewritten
+without the `other` variant, but we showed it for expository reasons.)
 
 ## Built-in Formatters
 
