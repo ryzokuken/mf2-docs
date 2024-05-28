@@ -63,7 +63,7 @@ An annotation can appear in an expression by itself or following a single operan
 
 #### Literals
 
-In the example above, `long` is a _literal_. Literals can appear in various contexts in an MF2 message. For example, the right-hand side (part appearing to the right of an '=' sign) of an option can be either a variable or a literal. You can tell that it's a literal in this case because it doesn't belong with `$`. Rarely, literals have to be quoted (enclosed in `|` / `|` characters).
+In the example above, `long` is a _literal_. Literals can appear in various contexts in an MF2 message. For example, the right-hand side (part appearing to the right of an '=' sign) of an option can be either a variable or a literal. You can tell that it's a literal in this case because it doesn't begin with `$`. Rarely, literals have to be quoted (enclosed in `|` / `|` characters).
 
 #### Functions
 
@@ -156,6 +156,19 @@ Note that whitespace in text, including tabs, spaces, and newlines is significan
 ```
 .input {$num :number}
 {{   This is the {$num} pattern   }}
+```
+
+An example with escaped characters:
+
+**EXAMPLE**
+```
+Backslash: \\, left curly brace \{, right curly brace \}
+```
+
+This example formats to the string:
+
+```
+Backslash: \, left curly brace {, right curly brace }
 ```
 
 ## Matchers
