@@ -311,19 +311,3 @@ he  {{{$user} added you to his friends list.}}
 ```
 
 In this example, the runtime value of `$pronoun` is treated as a string and literally compared to the strings `she` and `he`. If it's not equal to any of the other strings, then the `*` variant is used.
-
-## Appendix
-
-This section covers advanced features. There's no need to worry about understanding these features at first.
-
-### Private-use annotations
-
-A private-use annotation is an annotation whose syntax is reserved for use by a specific implementation or by private agreement between multiple implementations. Implementations define their own meaning and semantics for private-use annotations.
-
-A private-use annotation starts with either `&` or `^`.
-
-### Reserved annotations
-
-A reserved annotation is an annotation whose syntax is reserved for future standardization.
-
-A reserved annotation starts with a reserved character, which would be one of: `!`, `@`, `#`, `%`, `*`, `<`, `>`, `/`, `?` or `~`.
